@@ -16,9 +16,11 @@ return new class extends Migration
             $table->string('nama_lengkap', 100);
             $table->string('email', 100)->unique();
             $table->string('nomor_telepon', 15)->unique();
+            $table->date('tanggal_lahir');
             $table->string('alamat');
             $table->date('tanggal_masuk');
-            $table->enum('status',['aktif','non-aktif'])->default('aktif');
+           $table->enum('status', ['aktif', 'nonaktif']);
+
             $table->timestamps();
         });
     }
