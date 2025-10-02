@@ -15,6 +15,7 @@ class EmployeeController extends Controller
         $employes = Employee::latest()->paginate(5);
 
         return view('employes.index', [
+            'title' => 'app-pegawai',
             'employes' => $employes
         ]);
     }
