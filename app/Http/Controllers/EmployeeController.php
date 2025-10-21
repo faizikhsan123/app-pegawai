@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Departement;
+use App\Models\Position;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -12,7 +14,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employes = Employee::latest()->paginate(5);
+        $employes = Employee::with('departemen', 'jabatan')->latest()->paginate(5);
 
         return view('employes.index', [
             'title' => 'app-pegawai',
@@ -25,7 +27,13 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view('employes.create');
+        $departements = Departement::all();
+        $positions = Position::all();
+
+        return view('employes.create', [
+            'departements' => $departements,
+            'positions' => $positions
+        ]);
     }
 
     /**
@@ -64,10 +72,14 @@ class EmployeeController extends Controller
      */
     public function edit(string $id)
     {
-        $employes = Employee::find($id);
+        $employes = Employee::findOrFail($id);
+        $departements = Departement::all();
+        $positions = Position::all();
 
         return view('employes.edit', [
-            'employes' => $employes
+            'employes' => $employes,
+            'departements' => $departements,
+            'positions' => $positions
         ]);
     }
 
@@ -78,12 +90,14 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:employees,email',
+            'email' => 'required|email|max:255|unique:employees,email,' . $id,
             'nomor_telepon' => 'required|string|max:15',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string|max:255',
             'tanggal_masuk' => 'required|date',
             'status' => 'required|string|max:50',
+            'departements_id' => 'required|exists:departements,id',
+            'positions_id' => 'required|exists:positions,id',
         ]);
 
         $employee = Employee::findOrFail($id);
@@ -95,8 +109,11 @@ class EmployeeController extends Controller
             'alamat',
             'tanggal_masuk',
             'status',
+            'departements_id',
+            'positions_id',
         ]));
-        return redirect()->route('employes.index');
+
+        return redirect()->route('employes.index')->with('success', 'Data pegawai berhasil diperbarui!');
     }
 
     /**
